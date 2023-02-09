@@ -5,8 +5,8 @@ from django.conf import settings
 from rest_framework.response import Response
 from rest_framework import viewsets, mixins
 
-from main.serializers import *
-from main.models import *
+from bcmr.serializers import *
+from bcmr.models import *
 
 
 class TokenViewSet(

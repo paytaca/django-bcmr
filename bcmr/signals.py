@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.db.models import F
 
-from main.models import Token, Registry
+from bcmr.models import Token, Registry
 
 
 @receiver(post_save, sender=Token)

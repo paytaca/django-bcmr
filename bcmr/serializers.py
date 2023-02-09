@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from django.conf import settings
 
-from main.models import *
+from bcmr.models import *
 
 
 class EmptySerializer(serializers.Serializer):

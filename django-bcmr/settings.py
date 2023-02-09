@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',
+    'bcmr',
     'rest_framework',
     'corsheaders',
     'drf_yasg',
@@ -62,7 +62,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-ROOT_URLCONF = 'bcmr.urls'
+ROOT_URLCONF = 'django-bcmr.urls'
 
 TEMPLATES = [
     {
@@ -80,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'bcmr.wsgi.application'
+WSGI_APPLICATION = 'django-bcmr.wsgi.application'
 
 
 # Database

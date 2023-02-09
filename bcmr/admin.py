@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from main.models import *
+from bcmr.models import *
 
 
 admin.site.site_header = 'Django BCMR Admin'
