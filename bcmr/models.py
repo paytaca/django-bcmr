@@ -6,6 +6,9 @@ import uuid
 
 class AuthToken(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        verbose_name_plural = 'Auth Tokens'
     
 
 class Token(models.Model):
@@ -57,3 +60,4 @@ class Registry(models.Model):
 
     class Meta:
         verbose_name_plural = 'Registries'
+        ordering = ('name', )

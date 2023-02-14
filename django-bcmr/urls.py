@@ -26,6 +26,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 from bcmr.urls import urlpatterns as bcmr_urls
+from bcmr import views
 
 
 schema_view = get_schema_view(
@@ -46,6 +47,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(bcmr_urls)),
+    path('add_token/', views.add_token),
     url(r'^api/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^api/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     url(r'api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui')

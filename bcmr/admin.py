@@ -3,9 +3,6 @@ from django.contrib import admin
 from bcmr.models import *
 
 
-admin.site.site_header = 'Django BCMR Admin'
-
-
 class AuthTokenAdmin(admin.ModelAdmin):
     list_display = [
         'id',

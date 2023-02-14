@@ -1,6 +1,9 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.conf import settings
+from django.shortcuts import render
+
+from drf_yasg.utils import swagger_auto_schema
 
 from rest_framework.response import Response
 from rest_framework import viewsets, status
@@ -10,6 +13,10 @@ from bcmr.utils import generate_auth_token
 from bcmr.serializers import *
 from bcmr.filters import *
 from bcmr.models import *
+from bcmr.forms import *
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def get_or_create_owner(bcmr_auth_header):
@@ -71,7 +78,8 @@ class RegistryViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
+    
+    @swagger_auto_schema(responses={200: BcmrRegistrySerializer})
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -92,3 +100,44 @@ class RegistryViewSet(viewsets.ModelViewSet):
         if self.action in self.serializer_classes.keys():
             return self.serializer_classes[self.action]
         return super().get_serializer_class()
+
+ 
+def add_token(request):
+    submitted = False
+    message = ''
+
+    if request.method == 'POST':
+        queryDict = request.POST
+        data = dict(queryDict.lists())
+
+        category = data['category'][0]
+        name = data['name'][0]
+        description = data['description'][0]
+        symbol = data['symbol'][0]
+        decimals = int(data['decimals'][0])
+        icon = data['icon'][0]
+        
+        if Token.objects.filter(category=category).exists():
+            message = 'Token already exists!'
+        else:
+            token = Token(
+                category=category,
+                name=name,
+                description=description,
+                symbol=symbol,
+                decimals=decimals,
+                icon=icon
+            )
+            token.save()
+
+            message = f'Token added!'
+
+        submitted = True
+
+
+    context = {
+        'form': TokenForm(),
+        'submitted': submitted,
+        'message': message
+    }
+    return render(request, 'bcmr/add_token.html', context)
