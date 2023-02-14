@@ -22,6 +22,18 @@ Quick start
 
     path('bcmr/', include('bcmr.urls')),
 
+4. Add media config on settings.py::
+
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+5. (upon deployment) Add media location path on nginx configuration file::
+
+    location /media/ {
+        autoindex on;
+        alias /<your_path_to the_media_folder>/;
+    }
+
 4. Start the development server and visit https://<your_main_project_domain>/admin/
    to access the DB (you'll need the Admin app enabled).
 
