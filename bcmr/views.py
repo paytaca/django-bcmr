@@ -15,13 +15,10 @@ from bcmr.filters import *
 from bcmr.models import *
 from bcmr.forms import *
 
-import logging
-logger = logging.getLogger(__name__)
 
-
-def get_or_create_owner(bcmr_auth_header):
-    if bcmr_auth_header:
-        return AuthToken.objects.get(id=bcmr_auth_header)
+def get_or_create_owner(auth_token_id):
+    if auth_token_id:
+        return AuthToken.objects.get(id=auth_token_id)
     else:
         return generate_auth_token()
 
@@ -43,7 +40,7 @@ class TokenViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)            
-        serializer.validated_data['owner'] = get_or_create_owner(request.META.get('HTTP_BCMR_AUTH'))
+        serializer.validated_data['owner'] = get_or_create_owner(request.META.get(settings.AUTH_HEADER))
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -74,7 +71,7 @@ class RegistryViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)            
-        serializer.validated_data['owner'] = get_or_create_owner(request.META.get('HTTP_BCMR_AUTH'))
+        serializer.validated_data['owner'] = get_or_create_owner(request.META.get(settings.AUTH_HEADER))
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -105,6 +102,7 @@ class RegistryViewSet(viewsets.ModelViewSet):
 def add_token(request):
     submitted = False
     message = ''
+    owner = ''
 
     if request.method == 'POST':
         queryDict = request.POST
@@ -115,29 +113,34 @@ def add_token(request):
         description = data['description'][0]
         symbol = data['symbol'][0]
         decimals = int(data['decimals'][0])
+        auth_token = data['auth_token'][0]
         icon = data['icon'][0]
         
         if Token.objects.filter(category=category).exists():
-            message = 'Token already exists!'
+            message = 'Token category already exists!'
         else:
-            token = Token(
-                category=category,
-                name=name,
-                description=description,
-                symbol=symbol,
-                decimals=decimals,
-                icon=icon
-            )
-            token.save()
-
-            message = f'Token added!'
+            try:
+                owner = get_or_create_owner(auth_token)
+                token = Token(
+                    category=category,
+                    name=name,
+                    description=description,
+                    symbol=symbol,
+                    decimals=decimals,
+                    owner=owner,
+                    icon=icon
+                )
+                token.save()
+                message = 'Token added!'
+            except:
+                message = 'Invalid auth token!'
 
         submitted = True
-
 
     context = {
         'form': TokenForm(),
         'submitted': submitted,
-        'message': message
+        'message': message,
+        'owner': owner if type(owner) is str else owner.id
     }
     return render(request, 'bcmr/add_token.html', context)

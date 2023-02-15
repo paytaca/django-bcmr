@@ -201,3 +201,5 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend'
     ]
 }
+
+AUTH_HEADER = 'HTTP_BCMR_AUTH'

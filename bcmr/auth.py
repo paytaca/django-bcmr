@@ -2,6 +2,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import NotAuthenticated
 
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
 
 from bcmr.models import *
 
@@ -17,7 +18,7 @@ class HeaderAuthentication(BaseAuthentication):
                 request.user = AnonymousUser()
                 return (request.user, None)
 
-            bcmr_auth_token = request.META.get('HTTP_BCMR_AUTH')
+            bcmr_auth_token = request.META.get(settings.AUTH_HEADER)
             if not bcmr_auth_token:
                 if request.method == 'POST':
                     request.user = AnonymousUser()
@@ -50,6 +51,6 @@ class HeaderAuthentication(BaseAuthentication):
                 request.user = AnonymousUser()
                 return (request.user, None)
         except AuthToken.DoesNotExist as dne:
-            raise NotAuthenticated(detail='Invalid authorization token', code=403)
+            raise NotAuthenticated(detail='Invalid auth token', code=403)
         except KeyError as ke:
             raise NotAuthenticated(detail='Client Not Found', code=403)
