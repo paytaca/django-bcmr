@@ -73,26 +73,26 @@ class RegistrySerializer(serializers.ModelSerializer):
             'name',
             'description',
             'tokens',
-            'owner',
+            # 'owner',
         )
         read_only_fields = (
-            'owner',
+            # 'owner',
             'id',
         )
 
 
-class NoOwnerRegistrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Registry
-        fields = (
-            'id',
-            'name',
-            'description',
-            'tokens',
-        )
-        read_only_fields = (
-            'id',
-        )
+# class NoOwnerRegistrySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Registry
+#         fields = (
+#             'id',
+#             'name',
+#             'description',
+#             'tokens',
+#         )
+#         read_only_fields = (
+#             'id',
+#         )
 
 
 class BcmrRegistrySerializer(serializers.ModelSerializer):

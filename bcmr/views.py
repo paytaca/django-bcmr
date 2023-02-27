@@ -1,4 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import render
@@ -6,6 +7,7 @@ from django.shortcuts import render
 from drf_yasg.utils import swagger_auto_schema
 
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import viewsets, status
 
 from bcmr.auth import HeaderAuthentication
@@ -54,52 +56,59 @@ class TokenViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
 
-class RegistryViewSet(viewsets.ModelViewSet):
-    queryset = Registry.objects.all()
-    filterset_class = RegistryFilter
-    filter_backends = (filters.DjangoFilterBackend, )
-    authentication_classes = (HeaderAuthentication, )
+@method_decorator(name='main', decorator=swagger_auto_schema(responses={200: BcmrRegistrySerializer}))
+class RegistryViewSet(viewsets.GenericViewSet):
+    queryset = Registry.objects.filter(active=True)
+    # filterset_class = RegistryFilter
+    # filter_backends = (filters.DjangoFilterBackend, )
+    # authentication_classes = (HeaderAuthentication, )
     serializer_class = EmptySerializer
-    serializer_classes = {
-        'create': RegistrySerializer,
-        'list': NoOwnerRegistrySerializer,
-        'update': RegistrySerializer,
-        'partial_update': RegistrySerializer,
-        'retrieve': BcmrRegistrySerializer
-    }
+    # serializer_classes = {
+    #     # 'create': RegistrySerializer,
+    #     'list': RegistrySerializer,
+    #     # 'update': RegistrySerializer,
+    #     # 'partial_update': RegistrySerializer,
+    #     'retrieve': BcmrRegistrySerializer
+    # }
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)            
-        serializer.validated_data['owner'] = get_or_create_owner(request.META.get(settings.AUTH_HEADER))
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    @action(methods=['GET'], detail=False)
+    def main(self, request, *args, **kwargs):
+        obj = Registry.objects.filter(active=True).order_by('-latest_revision').first()
+        serializer = BcmrRegistrySerializer(obj)
+        return Response(serializer.data)
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)            
+    #     serializer.validated_data['owner'] = get_or_create_owner(request.META.get(settings.AUTH_HEADER))
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
-    @swagger_auto_schema(responses={200: BcmrRegistrySerializer})
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        instance.latest_revision = timezone.now()
-        instance.save()
+    # @swagger_auto_schema(responses={200: BcmrRegistrySerializer})
+    # def update(self, request, *args, **kwargs):
+    #     partial = kwargs.pop('partial', False)
+    #     instance = self.get_object()
+    #     instance.latest_revision = timezone.now()
+    #     instance.save()
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
 
-        bcmr = BcmrRegistrySerializer(instance)
-        return Response(bcmr.data)
+    #     bcmr = BcmrRegistrySerializer(instance)
+    #     return Response(bcmr.data)
 
-    def get_serializer_class(self):
-        if not isinstance(self.serializer_classes, dict):
-            raise ImproperlyConfigured("serializer_classes should be a dict mapping.")
+    # def get_serializer_class(self):
+    #     if not isinstance(self.serializer_classes, dict):
+    #         raise ImproperlyConfigured("serializer_classes should be a dict mapping.")
 
-        if self.action in self.serializer_classes.keys():
-            return self.serializer_classes[self.action]
-        return super().get_serializer_class()
+    #     if self.action in self.serializer_classes.keys():
+    #         return self.serializer_classes[self.action]
+    #     return super().get_serializer_class()
 
  
-def add_token(request):
+def create_token(request):
     submitted = False
     message = ''
     owner = ''
@@ -143,4 +152,4 @@ def add_token(request):
         'message': message,
         'owner': owner if type(owner) is str else owner.id
     }
-    return render(request, 'bcmr/add_token.html', context)
+    return render(request, 'bcmr/create_token.html', context)

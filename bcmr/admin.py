@@ -21,6 +21,7 @@ class TokenAdmin(admin.ModelAdmin):
 class RegistryAdmin(admin.ModelAdmin):
     list_display = [
         'name',
+        'active',
         'description',
         'date_created',
         'latest_revision',

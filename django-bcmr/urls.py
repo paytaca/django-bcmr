@@ -47,7 +47,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(bcmr_urls)),
-    path('add_token/', views.add_token),
+    # path('create_token/fungible/', views.create_token),
     url(r'^api/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^api/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     url(r'api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui')

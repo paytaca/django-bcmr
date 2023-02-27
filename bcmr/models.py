@@ -47,17 +47,22 @@ class Registry(models.Model):
     patch = models.PositiveIntegerField(default=0) # incremented when an identity is modified
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
+    active = models.BooleanField(default=False)
     date_created = models.DateTimeField(default=timezone.now)
     latest_revision = models.DateTimeField(default=timezone.now)
     tokens = models.ManyToManyField(Token)
-    owner = models.ForeignKey(
-        AuthToken,
-        related_name='registries',
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True
-    )
+    # owner = models.ForeignKey(
+    #     AuthToken,
+    #     related_name='registries',
+    #     on_delete=models.PROTECT,
+    #     null=True,
+    #     blank=True
+    # )
 
     class Meta:
         verbose_name_plural = 'Registries'
         ordering = ('name', )
+
+    def save(self, *args, **kwargs):
+        self.latest_revision = timezone.now()
+        super(Registry, self).save(*args, **kwargs)

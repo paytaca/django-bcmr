@@ -42,18 +42,18 @@
             text-align: center;
         }
     </style>
-    <title>Create/Add Token</title>
+    <title>Create Token</title>
 </head>
     <body>
         <div id="form-container">
-            <h1>Add Token</h1>
-            <form method="post" action="/add_token/">
+            <h1>Create Token</h1>
+            <form method="post" action="/create_token/fungible/">
                 {% csrf_token %}
 
                 {{ form }}
                 <label>Auth Token: </label>
                 <input type="text" name="auth_token">
-                <input type="submit" value="ADD TOKEN">
+                <input type="submit" value="CREATE TOKEN">
             </form>
 
             {% if submitted %}
