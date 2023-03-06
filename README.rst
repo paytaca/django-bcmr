@@ -115,6 +115,7 @@ Main BCMR
 ------------
 
 Fetch at http://localhost:8000/bcmr/registries/main/
+
 Only the admin can add/remove tokens in the BCMR. After adding tokens, ask permission from the admin to include your token to the BCMR.
 
 
